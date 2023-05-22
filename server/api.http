@@ -1,0 +1,11 @@
+GET http://localhost:3000/api/posts
+
+### add meeting
+POST http://localhost:3000/api/post/create
+Content-Type: application/json
+
+{
+    "post_title":"Second meeting",
+    "post_desc":"Second desc",
+    "post_link":"www.meeting.com"
+}
