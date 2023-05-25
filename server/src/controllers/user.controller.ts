@@ -15,8 +15,8 @@ function testRoute(req: Request, res: Response, next: NextFunction) {
 const mail = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "binkhalid267@gmail.com",
-    pass: ".khalidmujahid12345.",
+    user: "",
+    pass: "",
   },
 });
 
