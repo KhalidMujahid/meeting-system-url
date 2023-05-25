@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import Post, { IPost } from "../models/post.model";
 import User, { IUser } from "../models/user.model";
 import { userValidate } from "../utils/validatior.utils";
+import nodemailer from "nodemailer";
 
 function testRoute(req: Request, res: Response, next: NextFunction) {
   try {
@@ -11,6 +12,14 @@ function testRoute(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+const mail = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "binkhalid267@gmail.com",
+    pass: ".khalidmujahid12345.",
+  },
+});
+
 async function userAttendMeeting(
   req: Request,
   res: Response,
@@ -18,13 +27,12 @@ async function userAttendMeeting(
 ) {
   try {
     const { fname, lname, email, phone, link } = req.body;
-    
+
     const { error } = userValidate.validate(req.body);
-    
-    if(error) {
+
+    if (error) {
       return res.status(422).send(error.details[0].message);
     }
-
 
     // check if the link exits
     const checkIfLinkExit: IPost | null = await Post.findOne<IPost>({
@@ -40,8 +48,24 @@ async function userAttendMeeting(
       phone_number: phone,
       meeting_link: link,
     })
-      .then((data) => res.status(201).send(`Meeting link has been sent to your ${email}..`))
-      .catch((error) => res.status(400).send(error));
+      .then(() => {
+        mail
+          .sendMail({
+            from: "binkhalid267@gmail.com",
+            to: email,
+            subject: "Meeting link",
+            html: `<p>Meeting link ${link}</p>`,
+          })
+          .then(() => {
+            res
+              .status(201)
+              .send(`Meeting link has been sent to your ${email}..`);
+          });
+      })
+      .catch((error: Error) => {
+        res.status(400).send(error.message);
+      })
+      .catch((error: Error) => res.status(400).send(error.message));
   } catch (error) {
     next(error);
   }
